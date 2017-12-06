@@ -1,4 +1,4 @@
-with open('.01.input') as f:
+with open('.01') as f:
     data = [int(d) for d in f.read()]
 
 distance = 1

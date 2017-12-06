@@ -1,4 +1,4 @@
-with open('.02.input') as f:
+with open('.02') as f:
     print(sum([b-a for a,b in [sorted([int(cell) for cell in row.split()])[::15] for row in f]]))
 
 def kvot(cells):

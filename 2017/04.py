@@ -1,5 +1,5 @@
 c = 0
-with open('.04.input') as f:
+with open('.04') as f:
     for line in f:
         words = {}
         for word in line.split():

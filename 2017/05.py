@@ -1,4 +1,4 @@
-with open('.05.input') as f:
+with open('.05') as f:
     jumps = [int(line) for line in f]
 
 i = 0
