@@ -3,15 +3,11 @@ with open('.06') as f:
 
 history = []
 c = 0
-while True:
-    if tuple(memory) in history:
-        break
-
+while tuple(memory) not in history:
     history.append(tuple(memory))
-    i_max = memory.index(max(memory))
-    val_max = max(memory) 
+    i_max, val_max = max(enumerate(memory), key=lambda k: k[1])
     memory[i_max] = 0
     for i in range(i_max + 1, i_max + val_max + 1):
         memory[i%len(memory)] += 1
     c += 1
-print(c, len(history) - history.index(tuple(memory)))
+print(c, c - history.index(tuple(memory)))
