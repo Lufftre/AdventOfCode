@@ -1,4 +1,3 @@
-layers = {}
 with open('.13') as f:
     exec('layers = {{{}}}'.format(f.read().replace('\n', ',')))
 
