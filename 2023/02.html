@@ -1,0 +1,62 @@
+<link rel="stylesheet" href="https://adventofcode.com/static/style.css">
+<style>
+    body {
+        display: flex;
+        margin: 0;
+    }
+    pre { padding-right: 10px;}
+</style>
+<pre id="input"></pre>
+<pre class="output"></pre>
+<pre class="output"></pre>
+<pre class="output"></pre>
+
+<script type="module">
+import inputRaw from './02.txt?raw'
+document.querySelector("#input").innerHTML = inputRaw
+const input = String(inputRaw)
+
+const bag = {
+    red: 12,
+    green: 13,
+    blue: 14,
+}
+
+const gameData = input
+    .split("\n")
+    .map(line => {
+        const [game, cubes] = line.split(":")
+        const gameID = parseInt(game.split(" ")[1])
+        const rounds = cubes.split(";").map(round => round.split(",").map(single => {
+            const [n, color] = single.split(" ").slice(1)
+            return [parseInt(n), color]
+        }))
+        return [gameID, rounds]
+    })
+
+const part1 = gameData
+    .reduce((counter, [gameID, rounds]) => {
+        for(const round of rounds) {
+            for(const [n, color] of round) {
+                if(bag[color] < n) return counter
+            }
+        }
+        return counter + gameID
+    }, 0)
+console.log(part1);
+
+const part2 = gameData
+    .map(([gameID, rounds]) => {
+        const optiBag = {}
+        for(const round of rounds) {
+            for(const [n, color] of round) {
+                optiBag[color] = Math.max(optiBag[color] ?? 0, n)
+            }
+        }
+        return Object.values(optiBag)
+        })
+    .map(optis => optis.reduce((prev, opti) => prev*opti))
+    .reduce((prev, power) => prev + power)
+    
+console.log(part2);
+</script>

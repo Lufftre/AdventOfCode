@@ -1,0 +1,48 @@
+<link rel="stylesheet" href="https://adventofcode.com/static/style.css">
+<style>
+    body {
+        display: flex;
+        margin: 0;
+    }
+    pre { padding-right: 10px;}
+</style>
+<pre id="input"></pre>
+<pre class="output"></pre>
+<pre class="output"></pre>
+<pre class="output"></pre>
+
+<script type="module">
+import inputRaw from './01.txt?raw'
+document.querySelector("#input").innerHTML = inputRaw
+
+function output(id, line) {
+    const outputs = document.querySelectorAll(".output")
+    const output = outputs[id]
+    output.innerHTML += line + "\n"
+    return line
+}
+
+const input = String(inputRaw)
+const part1 = input
+    .replace(/[^\d\n]/g, "")
+    .split("\n")
+    // .map(line => output(0 ,line))
+    .map(line => line[0] + line.slice(-1))
+    // .map(line => output(1 ,line))
+    .reduce((p, c) => p + parseInt(c), 0)
+console.log(part1);
+
+const numbers = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+const part2 = input
+    .split("\n")
+    .map(line => numbers.reduce((_line, number, i) => 
+        _line.replaceAll(number, number + (i+1) + number), line))
+    .map(line => output(0 ,line))
+    .map(line => line.replace(/[^\d]/g, ""))
+    .map(line => output(1 ,line))
+    .map(line => line[0] + line.slice(-1))
+    .map(line => output(2 ,line))
+    .reduce((p, c) => p + parseInt(c), 0)
+    
+console.log(part2);
+</script>
