@@ -1,0 +1,75 @@
+<link rel="stylesheet" href="https://adventofcode.com/static/style.css">
+<style>
+    body {
+        display: flex;
+        margin: 0;
+    }
+    pre { padding-right: 10px;}
+</style>
+<pre id="input"></pre>
+<pre class="output"></pre>
+<pre class="output"></pre>
+<pre class="output"></pre>
+
+<script type="module">
+import inputRaw from './03.txt?raw'
+document.querySelector("#input").innerHTML = inputRaw
+let input = String(inputRaw)
+const LINE_WIDTH = input.search("\n")
+input = input.replaceAll("\n", "")
+const numbers = [...input.matchAll(/\d+/g)]
+
+const kernel = [
+    -LINE_WIDTH - 1, -LINE_WIDTH, -LINE_WIDTH + 1,
+    -1, 1,
+    LINE_WIDTH - 1, LINE_WIDTH, LINE_WIDTH + 1
+]
+
+const parts = []
+
+function searchNumber(number) {
+    for (let i = number.index; i < number.index + number[0].length; i++) {
+        for(const offset of kernel) {
+            const cellIndex = i + offset
+            const neighbour = input.charAt(cellIndex)
+            if(neighbour.match(/[^0-9\.]/)) {
+                return true
+            }
+        }
+    }
+    return false
+}
+for(const number of numbers) {
+    const partNumber = parseInt(number[0])
+    if(searchNumber(number))
+        parts.push(partNumber)
+}
+
+const part1 = parts.reduce((p, c) => p + c)
+console.log(part1)
+
+const gears = {}
+function searchGear(number) {
+    const partNumber = parseInt(number[0])
+    for (let i = number.index; i < number.index + number[0].length; i++) {
+        for(const offset of kernel) {
+            const cellIndex = i + offset
+            const neighbour = input.charAt(cellIndex)
+            if(neighbour == "*") {
+                if(!(cellIndex in gears)) gears[cellIndex] = [partNumber]
+                else gears[cellIndex].push(partNumber)
+                return
+            }
+        }
+    }
+}
+for(const number of numbers) {
+    const partNumber = parseInt(number[0])
+    searchGear(number)
+}
+const part2 = Object.values(gears).reduce((p, c) => {
+    if(c.length == 2) return c[0] * c[1] + p
+    else return p
+}, 0)
+console.log(part2)
+</script>
