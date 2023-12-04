@@ -1,0 +1,75 @@
+<link rel="stylesheet" href="https://adventofcode.com/static/style.css" />
+<style>
+    body {
+        display: flex;
+        margin: 0;
+    }
+    pre {
+        padding-right: 10px;
+    }
+    .output:nth-of-type(2) {
+        color: gold;
+    }
+    .output:nth-of-type(3) {
+        color: green;
+    }
+</style>
+<pre id="input"></pre>
+<pre class="output"></pre>
+<pre class="output"></pre>
+
+<script type="module">
+    import inputRaw from './04.txt?raw'
+    document.querySelector('#input').innerHTML = inputRaw
+
+    function output(id, line) {
+        const outputs = document.querySelectorAll('.output')
+        const output = outputs[id]
+        output.innerHTML += line + '\n'
+        return line
+    }
+    const input = String(inputRaw)
+    const inputParsed = input
+        .split('\n')
+        .map((line) => line.replaceAll(/\s+/g, ' '))
+        .map((line) => line.split(':')[1])
+        .map((line) => line.split('|'))
+        .map(([winners, numbers]) => [
+            winners
+                .trim()
+                .split(' ')
+                .map((n) => parseInt(n)),
+            numbers
+                .trim()
+                .split(' ')
+                .map((n) => parseInt(n)),
+        ])
+
+    const part1 = inputParsed
+        .map(([winners, numbers]) =>
+            numbers.reduce((score, number) => {
+                if (winners.includes(number)) return Math.max(1, score * 2)
+                else return score
+            }, 0),
+        )
+        .map((score) => output(0, score))
+        .reduce((p, c) => p + c)
+    console.log(part1)
+
+    const cards = Array(inputParsed.length).fill(1)
+    inputParsed
+        .map(([winners, numbers]) =>
+            numbers.reduce((score, number) => {
+                if (winners.includes(number)) return score + 1
+                else return score
+            }, 0),
+        )
+        .forEach((score, index) => {
+            for (let i = 1; i <= score; i++) {
+                cards[index + i] += 1 * cards[index]
+            }
+        })
+    cards.forEach((card) => output(1, card))
+    const part2 = cards.reduce((p, c) => p + c)
+    console.log(part2)
+</script>
