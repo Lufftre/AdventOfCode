@@ -1,0 +1,58 @@
+<link rel="stylesheet" href="https://adventofcode.com/static/style.css" />
+<style>
+    body {
+        display: flex;
+        margin: 0;
+    }
+    pre {
+        padding-right: 10px;
+    }
+    .output:nth-of-type(2) {
+        color: gold;
+    }
+    .output:nth-of-type(3) {
+        color: green;
+    }
+</style>
+<pre id="input"></pre>
+<pre class="output"></pre>
+<pre class="output"></pre>
+
+<script type="module">
+    import inputRaw from './06.txt?raw'
+    document.querySelector('#input').innerHTML = inputRaw
+    const input = String(inputRaw)
+    const [times, distances] = input.split('\n').map((line) =>
+        line
+            .split(':')[1]
+            .split(/\s+/)
+            .slice(1)
+            .map((n) => parseInt(n)),
+    )
+
+    let part1 = 1
+    for (let i = 0; i < times.length; i++) {
+        const t = times[i]
+        const d = distances[i]
+        const wins = []
+        for (let holdTime = 0; holdTime < t; holdTime++) {
+            const traveled = holdTime * (t - holdTime)
+            if (traveled > d) wins.push(holdTime)
+        }
+        part1 *= wins.length
+    }
+    console.log(part1)
+
+    const [time, distance] = input
+        .split('\n')
+        .map((line) => line.replaceAll(/\s+/g, '').split(':')[1])
+        .map((n) => parseInt(n))
+
+    const wins = []
+    for (let holdTime = 0; holdTime < time; holdTime++) {
+        const traveled = holdTime * (time - holdTime)
+        if (traveled > distance) wins.push(holdTime)
+    }
+    const part2 = wins.length
+    console.log(part2)
+</script>

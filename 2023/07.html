@@ -1,0 +1,118 @@
+<link rel="stylesheet" href="https://adventofcode.com/static/style.css" />
+<style>
+    body {
+        display: flex;
+        margin: 0;
+    }
+    pre {
+        padding-right: 10px;
+    }
+    .output:nth-of-type(2) {
+        color: gold;
+    }
+    .output:nth-of-type(3) {
+        color: green;
+    }
+</style>
+<pre id="input"></pre>
+<pre class="output"></pre>
+<pre class="output"></pre>
+
+<script type="module">
+    import inputRaw from './07.txt?raw'
+    document.querySelector('#input').innerHTML = inputRaw
+    const input = String(inputRaw)
+
+    const cards = ['A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2', 'J']
+    function handCompare(a, b) {
+        const handA = a[0]
+        const handB = b[0]
+        const aMap = {}
+        const bMap = {}
+        for (const c of handA) {
+            aMap[c] = (aMap[c] ?? 0) + 1
+        }
+        for (const c of handB) {
+            bMap[c] = (bMap[c] ?? 0) + 1
+        }
+
+        const aMapValues = Object.values(aMap)
+        const bMapValues = Object.values(bMap)
+        if (Math.max(...aMapValues) != Math.max(...bMapValues)) {
+            return Math.max(...aMapValues) > Math.max(...bMapValues) ? 1 : -1
+        }
+
+        if (aMapValues.length != bMapValues.length) {
+            return aMapValues.length < bMapValues.length ? 1 : -1
+        }
+
+        for (let i = 0; i < handA.length; i++) {
+            if (cards.indexOf(handA[i]) != cards.indexOf(handB[i]))
+                return cards.indexOf(handA[i]) < cards.indexOf(handB[i]) ? 1 : -1
+        }
+    }
+
+    const hands = input
+        .split('\n')
+        .map((line) => {
+            const [hand, bid] = line.split(' ')
+            return [hand, parseInt(bid)]
+        })
+        .sort(handCompare)
+
+    const part1 = hands.reduce((winnings, [hand, bid], rank) => winnings + bid * (rank + 1), 0)
+    console.log(part1)
+
+    function handCompare2(a, b) {
+        const aHand = a[0]
+        const bHand = b[0]
+        const aMap = {}
+        const bMap = {}
+        for (const c of aHand) {
+            aMap[c] = (aMap[c] ?? 0) + 1
+        }
+        for (const c of bHand) {
+            bMap[c] = (bMap[c] ?? 0) + 1
+        }
+
+        let aMapSorted = Object.entries(aMap).sort((a, b) => b[1] - a[1])
+        let bMapSorted = Object.entries(bMap).sort((a, b) => b[1] - a[1])
+        for (const [i, [key, value]] of aMapSorted.entries()) {
+            if (key != 'J') {
+                aMapSorted[i][1] += aMap['J'] ?? 0
+                break
+            }
+        }
+        for (const [i, [key, value]] of bMapSorted.entries()) {
+            if (key != 'J') {
+                bMapSorted[i][1] += bMap['J'] ?? 0
+                break
+            }
+        }
+        aMapSorted.sort((a, b) => b[1] - a[1])
+        bMapSorted.sort((a, b) => b[1] - a[1])
+        if (aMapSorted[0][1] != bMapSorted[0][1]) return aMapSorted[0][1] > bMapSorted[0][1] ? 1 : -1
+
+        if (!(Object.keys(aMap).length == 1 && Object.keys(aMap)[0] == 'J')) delete aMap['J']
+        if (!(Object.keys(bMap).length == 1 && Object.keys(bMap)[0] == 'J')) delete bMap['J']
+        if (Object.keys(aMap).length != Object.keys(bMap).length) {
+            return Object.keys(aMap).length < Object.keys(bMap).length ? 1 : -1
+        }
+        for (let i = 0; i < aHand.length; i++) {
+            if (cards.indexOf(aHand[i]) != cards.indexOf(bHand[i])) {
+                return cards.indexOf(aHand[i]) < cards.indexOf(bHand[i]) ? 1 : -1
+            }
+        }
+    }
+
+    const hands2 = input
+        .split('\n')
+        .map((line) => {
+            const [hand, bid] = line.split(' ')
+            return [hand, parseInt(bid)]
+        })
+        .sort(handCompare2)
+
+    const part2 = hands2.reduce((winnings, [hand, bid], rank) => winnings + bid * (rank + 1), 0)
+    console.log(part2)
+</script>
