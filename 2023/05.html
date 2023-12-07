@@ -1,0 +1,88 @@
+<link rel="stylesheet" href="https://adventofcode.com/static/style.css" />
+<style>
+    body {
+        display: flex;
+        margin: 0;
+    }
+
+    pre {
+        padding-right: 10px;
+    }
+
+    .output:nth-of-type(2) {
+        color: gold;
+    }
+
+    .output:nth-of-type(3) {
+        color: green;
+    }
+</style>
+<pre id="input"></pre>
+<pre class="output"></pre>
+<pre class="output"></pre>
+
+<script type="module">
+    import inputRaw from './05.txt?raw'
+    document.querySelector('#input').innerHTML = inputRaw
+
+    function output(id, line) {
+        const outputs = document.querySelectorAll('.output')
+        const output = outputs[id]
+        output.innerHTML += line + '\n'
+        return line
+    }
+    const input = String(inputRaw)
+
+    const [seedsStr, ...tail] = input.split("\n")
+    const seeds = seedsStr.split(" ").slice(1).map(x => parseInt(x))
+
+    const maps = []
+    let mapIndex
+    for (const line of tail) {
+        if (line == "") continue
+
+        if (line.includes("map")) {
+            mapIndex = maps.length
+            maps.push([])
+            continue
+        }
+        const [dest, src, length] = line.split(" ").map(x => parseInt(x))
+        maps[mapIndex].push([dest, src, length])
+    }
+
+    function getChains(seeds) {
+        const chains = []
+        for (const seed of seeds) {
+            let current = seed
+            const chain = [current]
+            for (const map of maps) {
+                for (const [dest, src, length] of map) {
+                    if (current >= src && current < (src + length)) {
+                        current = dest + (current - src)
+                        break
+                    }
+                }
+                chain.push(current)
+            }
+            chains.push(chain)
+        }
+        return chains
+    }
+    const chains = getChains(seeds)
+    const part1 = Math.min(...chains.map(chain => chain[chain.length - 1]))
+    console.log(part1);
+
+
+    let part2
+    for (let i = 0; i < seeds.length; i += 2) {
+        const seedStart = seeds[i]
+        const length = seeds[i + 1]
+        console.log(seedStart, length);
+
+        for (let seed = seedStart; seed < (seedStart+length); seed++) {
+            const location = seedToLocation(seed)
+            part2 = location > part2 ? part2 : location
+        }
+    }
+    console.log(part2);
+</script>
