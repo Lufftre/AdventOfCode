@@ -1,0 +1,66 @@
+<link rel="stylesheet" href="https://adventofcode.com/static/style.css" />
+<style>
+    body {
+        display: flex;
+        margin: 0;
+    }
+    pre {
+        padding-right: 10px;
+    }
+    .output:nth-of-type(2) {
+        color: gold;
+    }
+    .output:nth-of-type(3) {
+        color: green;
+    }
+</style>
+<pre id="input"></pre>
+<pre class="output"></pre>
+<pre class="output"></pre>
+
+<script type="module">
+    import inputRaw from './08.txt?raw'
+    document.querySelector('#input').innerHTML = inputRaw
+    const input = String(inputRaw)
+
+    const lines = input.split('\n')
+    const cmds = lines[0]
+    const map = {}
+    lines.slice(2).forEach((line) => {
+        let [src, dst] = line.split(' = ')
+        dst = dst.substring(1, dst.length - 1).split(', ')
+        map[src] = dst
+    })
+
+    function walk(start) {
+        let steps = 0
+        let cur = start
+        while (cur != 'ZZZ') {
+            const cmd = cmds[steps % cmds.length]
+            const src = map[cur]
+            cur = cmd == 'L' ? src[0] : src[1]
+            steps++
+        }
+        return steps
+    }
+
+    const part1 = walk('AAA')
+    console.log(part1)
+
+    function walk2(start) {
+        let steps = 0
+        let cur = start
+        while (cur.slice(-1) != 'Z') {
+            const cmd = cmds[steps % cmds.length]
+            const src = map[cur]
+            cur = cmd == 'L' ? src[0] : src[1]
+            steps++
+        }
+        return steps
+    }
+
+    const starts = Object.keys(map)
+        .filter((src) => src.slice(-1) == 'A')
+        .map((start) => walk2(start))
+    console.log(starts)
+</script>
