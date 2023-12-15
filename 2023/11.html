@@ -1,0 +1,96 @@
+<link rel="stylesheet" href="https://adventofcode.com/static/style.css" />
+<style>
+    body {
+        display: flex;
+        margin: 0;
+    }
+    pre {
+        padding-right: 10px;
+    }
+    .output:nth-of-type(2) {
+        color: gold;
+    }
+    .output:nth-of-type(3) {
+        color: green;
+    }
+</style>
+<pre id="input"></pre>
+<pre class="output"></pre>
+<pre class="output"></pre>
+
+<script type="module">
+    import inputRaw from './11.txt?raw'
+    const inputElement = document.querySelector('#input')
+    inputElement.innerHTML = inputRaw
+    const input = String(inputRaw)
+
+    function output(id, line) {
+        const outputs = document.querySelectorAll('.output')
+        const output = outputs[id]
+        output.innerHTML += line + '\n'
+        return line
+    }
+
+    const universe = input.split('\n')
+    const expandedUniverse = []
+    for (let row = 0; row < universe.length; row++) {
+        const isEmpty = universe[row].indexOf('#') == -1
+        if (isEmpty) {
+            expandedUniverse.push(universe[row].replaceAll('.', 'X'))
+        } else {
+            expandedUniverse.push(universe[row])
+        }
+    }
+
+    for (let col = 0; col < expandedUniverse[0].length; col++) {
+        let isEmpty = true
+        for (let row = 0; row < expandedUniverse.length; row++) {
+            if (expandedUniverse[row][col] == '#') {
+                isEmpty = false
+                break
+            }
+        }
+        if (isEmpty) {
+            for (let row = 0; row < expandedUniverse.length; row++) {
+                expandedUniverse[row] = expandedUniverse[row].slice(0, col) + 'X' + expandedUniverse[row].slice(col + 1)
+            }
+        }
+    }
+    for (const line of expandedUniverse) {
+        output(1, line)
+    }
+
+    const galaxys = []
+    for (let row = 0; row < expandedUniverse.length; row++) {
+        for (let col = 0; col < expandedUniverse[0].length; col++) {
+            const element = expandedUniverse[row][col]
+            if (element == '#') galaxys.push({ x: col, y: row })
+        }
+    }
+    const pairs = []
+    for (let a = 0; a < galaxys.length - 1; a++) {
+        for (let b = a + 1; b < galaxys.length; b++) {
+            pairs.push([galaxys[a], galaxys[b]])
+        }
+    }
+
+    function distnace(a, b, warpDistance) {
+        const xStart = Math.min(a.x, b.x)
+        const xEnd = Math.max(a.x, b.x)
+        const yStart = Math.min(a.y, b.y)
+        const yEnd = Math.max(a.y, b.y)
+
+        let d = 0
+        for (let x = xStart; x < xEnd; x++) {
+            d += expandedUniverse[0][x] == 'X' ? warpDistance : 1
+        }
+        for (let y = yStart; y < yEnd; y++) {
+            d += expandedUniverse[y][0] == 'X' ? warpDistance : 1
+        }
+        return d
+    }
+    const part1 = pairs.map(([a, b]) => distnace(a, b, 2)).reduce((tot, d) => tot + d)
+    console.log(part1)
+    const part2 = pairs.map(([a, b]) => distnace(a, b, 1e6)).reduce((tot, d) => tot + d)
+    console.log(part2)
+</script>

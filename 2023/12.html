@@ -1,0 +1,83 @@
+<link rel="stylesheet" href="https://adventofcode.com/static/style.css" />
+<style>
+    body {
+        display: flex;
+        margin: 0;
+    }
+    pre {
+        padding-right: 10px;
+    }
+    .output:nth-of-type(2) {
+        color: gold;
+    }
+    .output:nth-of-type(3) {
+        color: green;
+    }
+</style>
+<pre id="input"></pre>
+<pre class="output"></pre>
+<pre class="output"></pre>
+
+<script type="module">
+    import inputRaw from './12.txt?raw'
+    const outputs = document.querySelectorAll('.output')
+    const inputElement = document.querySelector('#input')
+    inputElement.innerHTML = inputRaw
+    const input = String(inputRaw)
+    const rows = input.split('\n')
+    function output(id, line) {
+        const output = outputs[id]
+        output.innerHTML += line + '\n'
+        return line
+    }
+
+    function validation(str, groups) {
+        let onGroup = false
+        let groupIdx = 0
+        let groupLength = 0
+        for (const c of str) {
+            if (c == '#') {
+                if (onGroup) {
+                    groupLength++
+                } else {
+                    if (groupIdx == groups.length) return false
+                    groupLength = 1
+                    onGroup = true
+                }
+            } else {
+                if (onGroup) {
+                    if (groups[groupIdx] != groupLength) return false
+                    groupIdx++
+                }
+                onGroup = false
+            }
+        }
+        if (onGroup) {
+            if (groupIdx != groups.length - 1) return false
+            return groups[groupIdx] == groupLength
+        } else {
+            return groupIdx == groups.length
+        }
+    }
+
+    validation('.###.##.#..#', [3, 2, 1])
+    let counter = 0
+    for (const row of rows) {
+        let tmpCounter = 0
+        const unknown = [...row.matchAll(/\?/g)].map((x) => x.index)
+        let [str, groups] = row.split(' ')
+        groups = groups.split(',').map((x) => parseInt(x))
+        for (let index = 0; index < 2 ** unknown.length; index++) {
+            let _tmp = str
+            for (let x = 0; x < unknown.length; x++) {
+                const test = (index >> x) & 1
+                _tmp = _tmp.replace('?', test == 1 ? '#' : '.')
+            }
+            const isValid = validation(_tmp, groups)
+            // if (isValid) console.log(isValid, _tmp)
+            tmpCounter += isValid
+        }
+        counter += tmpCounter
+    }
+    console.log(counter)
+</script>

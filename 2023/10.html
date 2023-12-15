@@ -1,0 +1,155 @@
+<link rel="stylesheet" href="https://adventofcode.com/static/style.css" />
+<style>
+    body {
+        display: flex;
+        margin: 0;
+    }
+    pre {
+        padding-right: 10px;
+    }
+    .output:nth-of-type(2) {
+        color: gold;
+    }
+    .output:nth-of-type(3) {
+        color: green;
+    }
+</style>
+<pre id="input"></pre>
+<pre class="output"></pre>
+<pre class="output"></pre>
+
+<script type="module">
+    import inputRaw from './10.txt?raw'
+    const inputElement = document.querySelector('#input')
+    inputElement.innerHTML = inputRaw
+    const input = String(inputRaw)
+    const start = input.indexOf('S')
+    const rowLength = input.indexOf('\n') + 1
+
+    const allowedConnections = {
+        '|': ['north', 'south'],
+        '-': ['east', 'west'],
+        L: ['north', 'east'],
+        J: ['north', 'west'],
+        7: ['south', 'west'],
+        F: ['south', 'east'],
+        S: ['south', 'east', 'north', 'west'],
+        '\n': [],
+        '.': [],
+    }
+    const reverse = {
+        north: 'south',
+        south: 'north',
+        east: 'west',
+        west: 'east',
+    }
+    function getConnections(index) {
+        const neighbours = {
+            west: index - 1,
+            east: index + 1,
+            north: index - rowLength,
+            south: index + rowLength,
+        }
+        const connections = []
+        const current = input[index]
+        for (const [direction, newIndex] of Object.entries(neighbours)) {
+            if (!allowedConnections[current].includes(direction)) continue
+            if (!allowedConnections[input[newIndex]].includes(reverse[direction])) continue
+            connections.push(newIndex)
+        }
+        return connections
+    }
+
+    const [first, end] = getConnections(start, 0)
+    function dfs(first, start, end) {
+        const stack = [[first]]
+        const visited = [start]
+        while (stack.length > 0) {
+            const path = stack.pop()
+            const current = path[path.length - 1]
+            if (current == end) {
+                return path
+            }
+            const connections = getConnections(current)
+            for (const c of connections) {
+                if (visited.includes(c)) continue
+                stack.push([...path, c])
+                visited.push(c)
+            }
+        }
+    }
+
+    const part1 = dfs(first, start, end)
+    console.log(part1, part1.length)
+    console.log(Math.floor((part1.length + 1) / 2))
+
+    function markIndex(index, mark) {
+        inputElement.innerHTML = inputElement.innerHTML.slice(0, index) + mark + inputElement.innerHTML.slice(index + 1)
+    }
+    for (let row = 0; row < input.split('\n').length; row++) {
+        for (let col = 0; col < rowLength - 1; col++) {
+            const _index = row * rowLength + col
+            if (part1.includes(_index)) continue
+            markIndex(_index, '.')
+        }
+    }
+
+    for (let row = 0; row < input.split('\n').length; row++) {
+        for (let col = 0; col < rowLength - 1; col++) {
+            const _index = row * rowLength + col
+            if (part1.includes(_index)) break
+            const c = inputElement.innerHTML[_index]
+            markIndex(_index, 'O')
+        }
+    }
+    for (let row = 0; row < input.split('\n').length; row++) {
+        for (let col = rowLength - 2; col >= 0; col--) {
+            const _index = row * rowLength + col
+            if (part1.includes(_index)) break
+            const c = inputElement.innerHTML[_index]
+            markIndex(_index, 'O')
+        }
+    }
+
+    for (let col = 0; col < rowLength - 1; col++) {
+        for (let row = 0; row < input.split('\n').length; row++) {
+            const _index = row * rowLength + col
+            if (part1.includes(_index)) break
+            const c = inputElement.innerHTML[_index]
+            markIndex(_index, 'O')
+        }
+    }
+    for (let col = rowLength - 2; col >= 0; col--) {
+        for (let row = 0; row < input.split('\n').length; row++) {
+            const _index = row * rowLength + col
+            if (part1.includes(_index)) break
+            const c = inputElement.innerHTML[_index]
+            markIndex(_index, 'O')
+        }
+    }
+
+    let dots = []
+    for (let row = 0; row < input.split('\n').length; row++) {
+        for (let col = 0; col < rowLength - 1; col++) {
+            const _index = row * rowLength + col
+            if (part1.includes(_index)) continue
+            const c = inputElement.innerHTML[_index]
+            if (c == '.') dots.push(_index)
+        }
+    }
+    console.log(dots)
+
+    let change = true
+    while (change) {
+        change = false
+        for (const dot of dots) {
+            for (const n of [dot - 1, dot + 1, dot - rowLength, dot + rowLength]) {
+                const c = inputElement.innerHTML[n]
+                if (c == 'O') {
+                    markIndex(dot, 'O')
+                    change = true
+                }
+            }
+        }
+    }
+</script>
