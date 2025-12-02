@@ -1,95 +1,98 @@
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+
+#define MAX_LINE 1024
+#define MAX_NUM_STR 32
 
 typedef struct {
-  char start[128];
-  int nStart;
-  char end[128];
-  int nEnd;
-} Range;
+    long start, end;
+} range_t;
 
-long process_range(Range r) {
-  long res = 0;
-  // printf("%s [%d] | %s [%d]\n", r.start, r.nStart, r.end, r.nEnd);
-  long start = atol(r.start);
-  long end = atol(r.end);
-  for (long i = start; i <= end; i++) {
-    char sstart[32];
-    sprintf(sstart, "%ld", i);
-    size_t nChars = strlen(sstart);
-    if (nChars % 2 != 0)
-      continue;
-    size_t half = nChars / 2;
-    if (strncmp(sstart, sstart + half, half) == 0) {
-      res += i;
-    }
-  }
-  return res;
+static bool has_repeating_halves(long num) {
+    char str[MAX_NUM_STR];
+    int len = snprintf(str, sizeof(str), "%ld", num);
+
+    if (len % 2 != 0) return false;
+
+    int half = len / 2;
+    return memcmp(str, str + half, half) == 0;
 }
 
-// Checks if long is made of any repeating biword, triword etc
-bool isInvalid(long l) {
-  // 2121212121
-  char sstart[32];
-  sprintf(sstart, "%ld", l);
-  size_t nChars = strlen(sstart);
-  size_t half = nChars / 2;
-  for (int i = 1; i <= half; i++) {
-    if (nChars % i != 0)
-      continue;
-    bool allMatch = true;
-    for (int j = 0; j < nChars / i; j++) {
-      if (strncmp(sstart, sstart + j * i, i) != 0) {
-          allMatch = false;
-          break;
-      }
+static bool has_repeating_pattern(long num) {
+    char str[MAX_NUM_STR];
+    int len = snprintf(str, sizeof(str), "%ld", num);
+
+    for (int pattern_len = 1; pattern_len <= len / 2; pattern_len++) {
+        if (len % pattern_len != 0) continue;
+
+        bool matches = true;
+        for (int i = pattern_len; i < len && matches; i++) {
+            if (str[i] != str[i % pattern_len]) {
+                matches = false;
+            }
+        }
+        if (matches) return true;
     }
-    if (allMatch) return true;
-  }
-  return false;
+    return false;
 }
 
-long process_range2(Range r) {
-  long res = 0;
-  long start = atol(r.start);
-  long end = atol(r.end);
-  for (long i = start; i <= end; i++) {
-    if (isInvalid(i)) {
-      res += i;
+static long solve_part1(const range_t *ranges, int count) {
+    long total = 0;
+    for (int i = 0; i < count; i++) {
+        for (long num = ranges[i].start; num <= ranges[i].end; num++) {
+            if (has_repeating_halves(num)) {
+                total += num;
+            }
+        }
     }
-  }
-  return res;
+    return total;
 }
 
-int main() {
-  FILE *f = fopen("02.input", "r");
-  if (!f)
-    return 1;
-
-  char *line = NULL;
-  size_t len = 0;
-  Range r = {0};
-  long res, res2 = 0;
-
-  if (getline(&line, &len, f) != -1) {
-    char *token = strtok(line, "-");
-    while (token) {
-      strcpy(r.start, token);
-      r.nStart = strlen(r.start);
-      token = strtok(NULL, ",");
-      strcpy(r.end, token);
-      r.nEnd = strlen(r.end);
-      res += process_range(r);
-      res2 += process_range2(r);
-      token = strtok(NULL, "-");
+static long solve_part2(const range_t *ranges, int count) {
+    long total = 0;
+    for (int i = 0; i < count; i++) {
+        for (long num = ranges[i].start; num <= ranges[i].end; num++) {
+            if (has_repeating_pattern(num)) {
+                total += num;
+            }
+        }
     }
-  }
+    return total;
+}
 
-  free(line);
-  fclose(f);
-  printf("res: %ld\n", res);
-  printf("res2: %ld\n", res2);
-  return 0;
+static int parse_ranges(const char *line, range_t *ranges, int max_ranges) {
+    int count = 0;
+    const char *pos = line;
+    long start, end;
+    int consumed;
+
+    while (count < max_ranges && sscanf(pos, "%ld-%ld%n", &start, &end, &consumed) >= 2) {
+        ranges[count++] = (range_t){start, end};
+        pos += consumed;
+        if (*pos == ',') pos++;  // Skip comma
+        else break;
+    }
+    return count;
+}
+
+int main(void) {
+    FILE *f = fopen("02.input", "r");
+    if (!f) return EXIT_FAILURE;
+
+    char line[MAX_LINE];
+    if (!fgets(line, sizeof(line), f)) {
+        fclose(f);
+        return EXIT_FAILURE;
+    }
+
+    range_t ranges[100];  // Assume max 100 ranges
+    int range_count = parse_ranges(line, ranges, 100);
+
+    printf("Part 1: %ld\n", solve_part1(ranges, range_count));
+    printf("Part 2: %ld\n", solve_part2(ranges, range_count));
+
+    fclose(f);
+    return EXIT_SUCCESS;
 }
